@@ -24,10 +24,15 @@ export default {
     ...mapActions(['setUser', 'loadSavedPrayers'])
   },
   created() {
-    const user = authService.getCurrentUser();
-    if (user) {
-      this.setUser(user);
-      this.loadSavedPrayers();
+    console.log('OpenAI API Key is set:', !!process.env.VUE_APP_OPENAI_API_KEY);
+    try {
+      const user = authService.getCurrentUser();
+      if (user) {
+        this.setUser(user);
+        this.loadSavedPrayers();
+      }
+    } catch (error) {
+      console.error('Error initializing app:', error);
     }
   }
 }

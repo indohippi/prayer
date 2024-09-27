@@ -21,6 +21,9 @@ export default createStore({
     }
   },
   actions: {
+    setUser({ commit }, user) {
+      commit('setUser', user);
+    },
     register({ commit }, user) {
       authService.register(user);
       commit('setUser', authService.getCurrentUser());
@@ -39,13 +42,19 @@ export default createStore({
       commit('setUser', userData);
     },
     savePrayer({ commit, state }, prayer) {
-      const updatedPrayers = [...state.savedPrayers, prayer];
-      localStorage.setItem(`prayers_${state.user.id}`, JSON.stringify(updatedPrayers));
-      commit('addSavedPrayer', prayer);
+      if (state.user && state.user.id) {
+        const updatedPrayers = [...state.savedPrayers, prayer];
+        localStorage.setItem(`prayers_${state.user.id}`, JSON.stringify(updatedPrayers));
+        commit('addSavedPrayer', prayer);
+      }
     },
     loadSavedPrayers({ commit, state }) {
-      const savedPrayers = JSON.parse(localStorage.getItem(`prayers_${state.user.id}`) || '[]');
-      commit('setSavedPrayers', savedPrayers);
+      if (state.user && state.user.id) {
+        const savedPrayers = JSON.parse(localStorage.getItem(`prayers_${state.user.id}`) || '[]');
+        commit('setSavedPrayers', savedPrayers);
+      } else {
+        commit('setSavedPrayers', []);
+      }
     }
   },
   getters: {
