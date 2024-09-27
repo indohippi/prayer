@@ -5,14 +5,20 @@
       <div v-else-if="error">{{ error }}</div>
       <div v-else>
         <h2>{{ currentDate }}</h2>
-        <blockquote>{{ dailyVerse.text }}</blockquote>
-        <p>- {{ dailyVerse.reference }}</p>
+        <div v-for="verse in dailyVerses" :key="verse.reference">
+          <blockquote>{{ verse.text }}</blockquote>
+          <p>- {{ verse.reference }}</p>
+        </div>
+        <button @click="generateNewVerses" :disabled="isGenerating">
+          {{ isGenerating ? 'Generating...' : 'Generate New Verses' }}
+        </button>
       </div>
     </div>
   </template>
   
   <script>
-  import { mapState } from 'vuex'
+  import { mapState } from 'vuex';
+  import axios from 'axios';
   
   export default {
     name: 'DailyVerses',
@@ -20,34 +26,49 @@
       return {
         loading: true,
         error: null,
-        dailyVerse: null
-      }
+        dailyVerses: [],
+        isGenerating: false
+      };
     },
     computed: {
       ...mapState(['user']),
       currentDate() {
-        return new Date().toLocaleDateString()
+        return new Date().toLocaleDateString();
+      }
+    },
+    methods: {
+      async fetchDailyVerses() {
+        try {
+          this.loading = true;
+          const response = await axios.post('/api/daily-verses', {
+            denomination: this.user.denomination,
+            date: this.currentDate
+          });
+          this.dailyVerses = response.data.verses;
+          this.loading = false;
+        } catch (error) {
+          this.error = "Failed to fetch daily verses. Please try again later.";
+          this.loading = false;
+        }
+      },
+      async generateNewVerses() {
+        try {
+          this.isGenerating = true;
+          const response = await axios.post('/api/daily-verses', {
+            denomination: this.user.denomination,
+            date: this.currentDate,
+            forceNew: true
+          });
+          this.dailyVerses = response.data.verses;
+          this.isGenerating = false;
+        } catch (error) {
+          this.error = "Failed to generate new verses. Please try again later.";
+          this.isGenerating = false;
+        }
       }
     },
     mounted() {
-      this.fetchDailyVerse()
-    },
-    methods: {
-      async fetchDailyVerse() {
-        try {
-          // In a real app, you would call your backend API here
-          // For this example, we'll just create a sample verse
-          await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate API call
-          this.dailyVerse = {
-            text: "For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.",
-            reference: "John 3:16"
-          }
-          this.loading = false
-        } catch (error) {
-          this.error = "Failed to fetch daily verse. Please try again later."
-          this.loading = false
-        }
-      }
+      this.fetchDailyVerses();
     }
   }
   </script>

@@ -1,24 +1,20 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
-import Profile from '../views/Profile.vue'
+import { createRouter, createWebHistory } from 'vue-router'
+import HomePage from '../views/HomePage.vue'
+import UserProfile from '../views/UserProfile.vue'
 import PrayerGenerator from '../views/PrayerGenerator.vue'
 import SavedPrayers from '../views/SavedPrayers.vue'
 import DailyVerses from '../views/DailyVerses.vue'
 
-Vue.use(VueRouter)
-
 const routes = [
-  { path: '/', name: 'Home', component: Home },
-  { path: '/profile', name: 'Profile', component: Profile },
+  { path: '/', name: 'Home', component: HomePage },
+  { path: '/profile', name: 'Profile', component: UserProfile },
   { path: '/generate-prayer', name: 'PrayerGenerator', component: PrayerGenerator },
   { path: '/saved-prayers', name: 'SavedPrayers', component: SavedPrayers },
   { path: '/daily-verses', name: 'DailyVerses', component: DailyVerses },
 ]
 
-const router = new VueRouter({
-  mode: 'history',
-  base: process.env.BASE_URL,
+const router = createRouter({
+  history: createWebHistory(process.env.BASE_URL),
   routes
 })
 
